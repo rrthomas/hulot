@@ -1,0 +1,4 @@
+#! /bin/sh
+# Find MIME type, and possibly encoding, of file
+# FIXME: Allow --uncompress to be used, optionally
+file --mime --brief --dereference -e tokens -- "$@"
