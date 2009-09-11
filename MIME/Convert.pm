@@ -26,6 +26,7 @@ use strict;
 use warnings;
 
 use Perl6::Slurp;
+use File::Slurp; # for write_file
 use File::Basename;
 use File::Temp qw(tempdir);
 use CGI qw(:standard);
@@ -46,10 +47,13 @@ sub renderId {
 
 # Use highlight to convert source code to HTML
 sub highlight {
-  my ($file) = @_;
+  my ($file, $page, $baseurl, $srctype, $desttype) = @_;
   my $tempdir = tempdir(CLEANUP => 1);
   my $css_file = "$tempdir/highlight.css";
-  open(READER, "-|", "highlight", $file, "-c", $css_file);
+  my $syntax = $srctype;
+  $syntax =~ s|text/x-||;
+  $syntax = "sh" if $syntax eq "shellscript"; # FIXME: Formalise this
+  open(READER, "-|", "highlight", $file, "-c", $css_file, "-S", $syntax);
   my $html = scalar(slurp '<:raw', \*READER);
   my $css = slurp '<:raw', $css_file;
   $html =~ s|(<body[^>]*>)|"$1<style type=\"text/css\">$css</style>"|e;
@@ -83,9 +87,11 @@ sub highlight {
    "text/x-m4>text/plain" => \&renderId,
    "text/x-po>text/plain" => \&renderId,
    "text/x-perl>text/plain" => \&renderId,
+   "text/x-python>text/plain" => \&renderId,
+   "text/x-ruby>text/plain" => \&renderId,
+   "text/x-shellscript>text/plain" => \&renderId,
 
    # Programming languages to HTML with highlight
-   "text/x-perl>text/html" => \&highlight,
    "text/x-c>text/html" => \&highlight,
    "text/x-c++>text/html" => \&highlight,
    "text/x-fortran>text/html" => \&highlight,
@@ -98,6 +104,9 @@ sub highlight {
    "text/x-m4>text/html" => \&highlight,
    "text/x-po>text/html" => \&highlight,
    "text/x-perl>text/html" => \&highlight,
+   "text/x-python>text/html" => \&highlight,
+   "text/x-ruby>text/html" => \&highlight,
+   "text/x-shellscript>text/html" => \&highlight,
 
    "text/x-tex>text/html" => sub {
      my ($file, $page, $baseurl) = @_;
@@ -136,10 +145,11 @@ sub highlight {
      return scalar(slurp '<:raw', "$tempdir/" . basename($file) . ".pdf");
    },
 
-   "application/pdf>application/postscript" => sub {
-     my ($file) = @_;
-     return pipe2("pdf2ps", scalar(slurp '<:raw', $file), "", "", "-", "-");
-   },
+   # Rewrite with temporary file
+   # "application/pdf>application/postscript" => sub {
+   #   my ($file) = @_;
+   #   return pipe2("pdf2ps", scalar(slurp '<:raw', $file), "", "", "-", "-");
+   # },
 
    "application/x-dvi>application/postscript" => sub {
      my ($file) = @_;
@@ -152,12 +162,22 @@ sub highlight {
      return scalar(slurp '<:raw', \*READER);
    },
 
-   "image/x-psion-sketch>image/png" => sub {
+   "image/x-epoc-sketch>image/png" => sub {
      my ($file) = @_;
      if ($file eq "-") {
        open(READER, "-|", "psiconv", "--type=PNG");
      } else {
        open(READER, "-|", "psiconv", "--type=PNG", $file);
+     }
+     return scalar(slurp '<:raw', \*READER);
+   },
+
+   "image/x-epoc-sketch>image/jpeg" => sub {
+     my ($file) = @_;
+     if ($file eq "-") {
+       open(READER, "-|", "psiconv", "--type=JPEG");
+     } else {
+       open(READER, "-|", "psiconv", "--type=JPEG", $file);
      }
      return scalar(slurp '<:raw', \*READER);
    },
@@ -181,7 +201,7 @@ sub convert {
   $desttype ||= "application/octet-stream";
   return scalar(slurp '<:raw', $file) if $srctype eq $desttype;
   return "" if ($file ne "-" && !-e $file) || !defined($Converters{"$srctype>$desttype"});
-  return $Converters{"$srctype>$desttype"}($file, $page, $baseurl);
+  return $Converters{"$srctype>$desttype"}($file, $page, $baseurl, $srctype, $desttype);
 }
 
 
