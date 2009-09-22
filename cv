@@ -1,4 +1,4 @@
-#! /usr/bin/perl
+#!/usr/bin/env perl
 # cv
 # Convert files from one MIME type to another
 # (c) Reuben Thomas   13/10/06, 15/10/07, 8/6, 11/7/08
