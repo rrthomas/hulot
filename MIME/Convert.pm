@@ -145,11 +145,16 @@ sub highlight {
      return scalar(slurp '<:raw', "$tempdir/" . basename($file) . ".pdf");
    },
 
-   # Rewrite with temporary file
-   # "application/pdf>application/postscript" => sub {
-   #   my ($file) = @_;
-   #   return pipe2("pdf2ps", scalar(slurp '<:raw', $file), "", "", "-", "-");
-   # },
+   "application/pdf>application/postscript" => sub {
+     my ($file) = @_;
+     if ($file eq "-") {
+       my $tempdir = tempdir(CLEANUP => 1);
+       $file = "$tempdir/tmp.dvi";
+       write_file($file, {binmode => 'raw'}, scalar(slurp '<:raw', \*STDIN));
+     }
+     open(READER, "-|", "pdf2ps", $file, "-");
+     return scalar(slurp '<:raw', \*READER);
+   },
 
    "application/x-dvi>application/postscript" => sub {
      my ($file) = @_;
