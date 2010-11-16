@@ -62,6 +62,12 @@ sub highlight {
 
 %Converters =
   (
+   "application/x-directory>text/plain" => sub {
+     my ($file) = @_;
+     open(READER, "-|", "ls", $file);
+     return scalar(slurp '<:raw', \*READER);
+   },
+
    # FIXME: Should have a rule for this
    #"text/plain>text/html" => ,
 
