@@ -1,6 +1,6 @@
 # Convert.pm
 # Convert one MIME type into another
-# (c) 2002-2009 Reuben Thomas (rrt@sc3d.org, http://rrt.sc3d.org/)
+# (c) 2002-2010 Reuben Thomas (rrt@sc3d.org, http://rrt.sc3d.org/)
 # Distributed under the GNU General Public License version 3, or (at
 # your option) any later version.
 
@@ -47,12 +47,28 @@ sub renderId {
 
 # Use highlight to convert source code to HTML
 sub highlight {
+  my %mime_to_ext = (
+       "text/x-c" => "c",
+       "text/x-c++" => "cc",
+       "text/x-fortran" => "f",
+       "text/x-makefile" => "mak",
+       "text/x-pl1" => "pl1",
+       "text/x-asm" => "asm",
+       "text/x-pascal" => "pas",
+       "text/x-java" => "java",
+       "text/x-bcpl" => "b",
+       "text/x-m4" => "m4",
+       "text/x-po" => "po",
+       "text/x-perl" => "pl",
+       "text/x-python" => "py",
+       "text/x-ruby" => "rb",
+       "text/x-shellscript" => "sh",
+      );
   my ($file, $page, $baseurl, $srctype, $desttype) = @_;
   my $tempdir = tempdir(CLEANUP => 1);
   my $css_file = "$tempdir/highlight.css";
   my $syntax = $srctype;
-  $syntax =~ s|text/x-||;
-  $syntax = "sh" if $syntax eq "shellscript"; # FIXME: Formalise this
+  $syntax = $mime_to_ext{$syntax}; # FIXME: Use a central tool
   open(READER, "-|", "highlight", $file, "-c", $css_file, "-S", $syntax);
   my $html = scalar(slurp '<:raw', \*READER);
   my $css = slurp '<:raw', $css_file;
