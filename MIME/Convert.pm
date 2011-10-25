@@ -210,7 +210,7 @@ sub highlight {
    },
 
    # FIXME: generalise the function to arbitrary audio types, using
-   # using File::MimeInfo::extensions()
+   # File::MimeInfo::extensions()
    "audio/x-flac>audio/mpeg" => sub {
      my ($file) = @_;
      my $tempdir = tempdir(CLEANUP => 1);
