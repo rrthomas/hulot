@@ -4,9 +4,6 @@
 # Distributed under the GNU General Public License version 3, or (at
 # your option) any later version.
 
-# FIXME: Have another script, or a flag to cv, that can test for the
-# existence of a particular converter
-
 # FIXME: Implement chained converters using transitive closure
 
 # FIXME: Implement many-to-many converters using convert and pacpl.
@@ -204,8 +201,7 @@ sub highlight {
      return scalar(slurp '<:raw', \*READER);
    },
 
-   # FIXME: generalise the function to arbitrary audio types, using
-   # File::MimeInfo::extensions()
+   # FIXME: generalise the function to arbitrary audio types, using output of pacpl -f
    "audio/x-flac>audio/mpeg" => sub {
      my ($file) = @_;
      my $tempdir = tempdir(CLEANUP => 1);
