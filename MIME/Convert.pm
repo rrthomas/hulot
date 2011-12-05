@@ -1,6 +1,6 @@
 # Convert.pm
 # Convert one MIME type into another
-# (c) 2002-2010 Reuben Thomas (rrt@sc3d.org, http://rrt.sc3d.org/)
+# (c) 2002-2011 Reuben Thomas (rrt@sc3d.org, http://rrt.sc3d.org/)
 # Distributed under the GNU General Public License version 3, or (at
 # your option) any later version.
 
@@ -64,7 +64,7 @@ sub highlight {
        "text/x-ruby" => "rb",
        "text/x-shellscript" => "sh",
       );
-  my ($file, $page, $baseurl, $srctype, $desttype) = @_;
+  my ($file, $srctype, $desttype) = @_;
   my $tempdir = tempdir(CLEANUP => 1);
   my $css_file = "$tempdir/highlight.css";
   my $syntax = $srctype;
@@ -131,15 +131,14 @@ sub highlight {
    "text/x-shellscript>text/html" => \&highlight,
 
    "text/x-tex>text/html" => sub {
-     my ($file, $page, $baseurl) = @_;
+     my ($file) = @_;
      my $tempdir = tempdir(CLEANUP => 1);
-     # FIXME: Customization of LaTeX env. vars should be moved into web.pl
-     system "env BIBINPUTS=\"" . dirname($file) . ":$ENV{HOME}/texmf/bibtex\" TEXINPUTS=\"$tempdir:/home/rrt/texmf/tex/latex//:" . dirname($file) . ":\" TEXMFOUTPUT=\"$tempdir\" LOG=\"$tempdir/latex-mk.log\" latex-mk --pdflatex \"$file\" > \"$tempdir/log\"";
-#     return ("", scalar(slurp "$tempdir/log")); # useful for debugging
+     my $filebase = basename($file);
+     $filebase =~ s/\.tex$//;
      # FIXME: Move customization of special HeVeA files into web.pl
-     system "cd \"$tempdir\"; hevea -fix -I \"$ENV{HOME}/texmf/hevea\" -I \"" . dirname($file) . "\" sym.hva latex2html.hva local.hva -o \"$tempdir/tmp.html\" \"$file\" >> \"$tempdir/log\"";
-     my $text = scalar(slurp '<:raw', "$tempdir/tmp.html");
-     my $encoding = getMimeEncoding("$tempdir/tmp.html");
+     system "cd $tempdir; cp $file $tempdir/; env BIBINPUTS=\"" . dirname($file) . ":\" TEXINPUTS=\"" . dirname($file) . ":\" latex-mk --pdflatex \"$file\" > $tempdir/log; hevea -fix -I \"$ENV{HOME}/texmf/hevea\" -I \"" . dirname($file) . "\" sym.hva latex2html.hva local.hva \"$filebase\" >> \"$tempdir/log\"";
+     my $text = scalar(slurp '<:raw', "$tempdir/$filebase.html");
+     my $encoding = getMimeEncoding("$tempdir/$filebase.html");
      # FIXME: Convert from actual encoding
      $text = decode("iso-8859-1", $text) if $encoding ne "utf-8";
      # Workaround for poems: if no H1, extract title element (if
@@ -150,19 +149,15 @@ sub highlight {
        $text =~ s|(<BODY[^>]*>)|"$1<H1>$title</H1>"|e
          if $title !~ m|/tmp|;
      }
-     # FIXME: Move text below into files that can be internationalised
-     # FIXME: download links should be generated in convert's caller,
-     # according to list of possible methods. Then get rid of $page
-     # and $baseurl, and add page count using pdfpages macro.
-     my $download = a({-href => "$baseurl$page?convert=application/pdf"}, "Download PDF");
-     return ($text, $download);
+     return $text;
+     #return scalar(slurp "$tempdir/log"); # Useful for debugging
    },
 
    "text/x-tex>application/pdf" => sub {
      my ($file) = @_;
      $file =~ s/\.tex$//;
      my $tempdir = tempdir(CLEANUP => 1);
-     system "env BIBINPUTS=\"" . dirname($file) . ":$ENV{HOME}/texmf/bibtex\" TEXINPUTS=\"$tempdir:/home/rrt/texmf/tex/latex//:" . dirname($file) . ":\" TEXMFOUTPUT=\"$tempdir\" LOG=\"$tempdir/latex-mk.log\" latex-mk --pdflatex \"$file\" > \"$tempdir/log\"";
+     system "cd $tempdir; env BIBINPUTS=\"" . dirname($file) . ":\" TEXINPUTS=\"" . dirname($file) . ":\" latex-mk --pdflatex \"$file\" > $tempdir/log";
 #     return scalar(slurp "$tempdir/log"); # useful for debugging
      return scalar(slurp '<:raw', "$tempdir/" . basename($file) . ".pdf");
    },
@@ -222,13 +217,23 @@ sub highlight {
 
 
 sub convert {
-  my ($file, $srctype, $desttype, $page, $baseurl) = @_;
+  my ($file, $srctype, $desttype) = @_;
   #print STDERR $file, " ", $srctype, " ", $desttype, " ", defined($Converters{"$srctype>$desttype"}), "\n";
   $srctype ||= "application/octet-stream";
   $desttype ||= "application/octet-stream";
   return scalar(slurp '<:raw', $file) if $srctype eq $desttype;
   return "" if ($file ne "-" && !-e $file) || !defined($Converters{"$srctype>$desttype"});
-  return $Converters{"$srctype>$desttype"}($file, $page, $baseurl, $srctype, $desttype);
+  return $Converters{"$srctype>$desttype"}($file, $srctype, $desttype);
+}
+
+sub converters {
+  my ($match) = @_;
+  $match ||= qr/.*/;
+  my @convs;
+  for my $c (keys %Converters) {
+    push @convs, $c if $c =~ m/$match/;
+  }
+  return @convs;
 }
 
 
