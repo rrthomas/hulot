@@ -22,16 +22,15 @@ use utf8;
 use strict;
 use warnings;
 
-use Perl6::Slurp;
-use File::Slurp; # for write_file
 use File::Basename;
 use File::Temp qw(tempdir);
-use CGI qw(:standard);
 use Encode;
 
-use lib ".";
+use Perl6::Slurp;
+use File::Slurp; # for write_file
+
 use RRT::Misc;
-use RRT::Macro;
+use RRT::Macro; # FIXME: Is this still needed?
 
 use vars qw(%Converters);
 
@@ -129,55 +128,25 @@ sub highlight {
 
    "text/x-tex>text/html" => sub {
      my ($file) = @_;
-     my $tempdir = tempdir(CLEANUP => 1);
-     my $filebase = basename($file);
-     $filebase =~ s/\.tex$//;
-     # FIXME: Move customization of special HeVeA files into web.pl
-     system "cd $tempdir; cp $file $tempdir/; env BIBINPUTS=\"" . dirname($file) . ":\" TEXINPUTS=\"" . dirname($file) . ":\" latex-mk --pdflatex \"$file\" > $tempdir/log; hevea -fix -I \"$ENV{HOME}/texmf/hevea\" -I \"" . dirname($file) . "\" sym.hva latex2html.hva local.hva \"$filebase\" >> \"$tempdir/log\"";
-     my $text = scalar(slurp '<:raw', "$tempdir/$filebase.html");
-     my $encoding = getMimeEncoding("$tempdir/$filebase.html");
-     # FIXME: Convert from actual encoding
-     $text = decode("iso-8859-1", $text) if $encoding ne "utf-8";
-     # Workaround for poems: if no H1, extract title element (if
-     # there's a real one, not just the filename) and reinject as H1
-     if ($text !~ m|<H1[^>]*>|i) {
-       $text =~ m|<TITLE[^>]*>(.*)</TITLE>|sm;
-       my $title = $1;
-       $text =~ s|(<BODY[^>]*>)|"$1<H1>$title</H1>"|e
-         if $title !~ m|/tmp|;
-     }
-     return $text;
-     #return scalar(slurp "$tempdir/log"); # Useful for debugging
+     open(READER, "-|", "text_x-tex→text_html", $file);
+     return scalar(slurp '<:raw', \*READER);
    },
 
    "text/x-tex>application/pdf" => sub {
      my ($file) = @_;
-     $file =~ s/\.tex$//;
-     my $tempdir = tempdir(CLEANUP => 1);
-     system "cd $tempdir; env BIBINPUTS=\"" . dirname($file) . ":\" TEXINPUTS=\"" . dirname($file) . ":\" latex-mk --pdflatex \"$file\" > $tempdir/log";
-#     return scalar(slurp "$tempdir/log"); # useful for debugging
-     return scalar(slurp '<:raw', "$tempdir/" . basename($file) . ".pdf");
+     open(READER, "-|", "text_x-tex→application_pdf", $file);
+     return scalar(slurp '<:raw', \*READER);
    },
 
    "application/pdf>application/postscript" => sub {
      my ($file) = @_;
-     if ($file eq "-") {
-       my $tempdir = tempdir(CLEANUP => 1);
-       $file = "$tempdir/tmp.dvi";
-       write_file($file, {binmode => 'raw'}, scalar(slurp '<:raw', \*STDIN));
-     }
-     open(READER, "-|", "pdf2ps", $file, "-");
+     open(READER, "-|", "application_pdf→application_postscript", $file);
      return scalar(slurp '<:raw', \*READER);
    },
 
    "application/x-dvi>application/postscript" => sub {
      my ($file) = @_;
-     if ($file eq "-") { # Standard input can't be a pipe for dvips
-       my $tempdir = tempdir(CLEANUP => 1);
-       $file = "$tempdir/tmp.dvi";
-       write_file($file, {binmode => 'raw'}, scalar(slurp '<:raw', \*STDIN));
-     }
-     open(READER, "-|", "dvips -f < \"$file\"");
+     open(READER, "-|", "application_x-dvi→application_postscript", $file);
      return scalar(slurp '<:raw', \*READER);
    },
 

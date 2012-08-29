@@ -1,0 +1,18 @@
+#!/usr/bin/env perl
+# Hulot converter: text/x-tex→application/pdf
+# © Reuben Thomas 2002-2011
+
+use strict;
+use warnings;
+
+use File::Basename;
+use File::Temp qw(tempdir);
+
+use Perl6::Slurp;
+
+my $file = $ARGV[0];
+$file =~ s/\.tex$//;
+my $tempdir = tempdir(CLEANUP => 1);
+system "cd $tempdir; env BIBINPUTS=\"" . dirname($file) . ":\" TEXINPUTS=\"" . dirname($file) . ":\" latex-mk --pdflatex \"$file\" > $tempdir/log";
+#return scalar(slurp "$tempdir/log"); # useful for debugging
+print scalar(slurp '<:raw', "$tempdir/" . basename($file) . ".pdf");

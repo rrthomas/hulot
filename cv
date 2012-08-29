@@ -1,17 +1,23 @@
 #!/usr/bin/env perl
 # cv
 # Convert files from one MIME type to another
-# (c) Reuben Thomas   13/10/06, 15/10/07, 8/6, 11/7/08
+# (c) Reuben Thomas 2006-2011
 
 use strict;
 use warnings;
 
+use Config;
 use File::Basename;
 use File::MimeInfo;
+use File::Spec::Functions qw(catfile);
+
 use MIME::Convert;
 use RRT::Misc;
 
 my $name = basename($0);
+my $converters_dir = $INC{"MIME/Convert.pm"};
+$converters_dir =~ s|/Convert.pm||;
+$ENV{PATH} .= $Config{path_sep} . catfile($converters_dir, "converters");
 
 # FIXME: Add support for auto-decompression
 if ($#ARGV < 1 || $#ARGV > 2) {

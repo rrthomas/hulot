@@ -1,0 +1,20 @@
+#!/usr/bin/env perl
+# Hulot converter: application/x-dvi→application/postscript
+# © Reuben Thomas 2002-2011
+
+use utf8;
+use strict;
+use warnings;
+
+use File::Basename;
+
+my $conversion = basename($0);
+my $desttype = $conversion;
+$desttype =~ s|^.*→image/||;
+$desttype = uc($desttype);
+my $file = $ARGV[0];
+if ($file eq "-") {
+  system "psiconv", "--type=$desttype";
+} else {
+  system "psiconv", "--type=$desttype", $file;
+}
