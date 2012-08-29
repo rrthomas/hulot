@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# Hulot converter: application/x-dvi→application/postscript
+# Hulot converter: image/x-epoc-sketch→image/*
 # © Reuben Thomas 2002-2011
 
 use utf8;
