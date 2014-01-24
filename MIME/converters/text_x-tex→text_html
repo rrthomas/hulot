@@ -17,11 +17,13 @@ with tempfile.TemporaryDirectory() as tempdir:
     text = open(tempdir + '/' + filebase + '.html', encoding='utf-8').read()
     # Workaround for poems: if no H1, extract title element (if there's a real one, not just the filename) and reinject as H1
     if not re.search('<H1[^>]*>', text, flags=re.IGNORECASE):
-        m = re.search('<TITLE[^>]*>(.*)</TITLE>', text, flags=re.MULTILINE | re.DOTALL)
+        m = re.search('<TITLE[^>]*>(.*)</TITLE>', text, flags=re.MULTILINE | re.DOTALL | re.IGNORECASE)
         try:
             title = m.group(1)
             if title.find('/tmp') == -1:
-                text = re.sub('(<BODY[^>]*>)', r'\1<H1>' + title + '</H1>', text)
+                text = re.sub('(<BODY[^>]*>)', r'\1<H1>' + title + '</H1>', text, flags=re.IGNORECASE)
         except: pass
     sys.stdout.buffer.write(text.encode('utf-8'))
-    #print(open(tempdir + "/log").read()), file=sys.stderr) # Useful for debugging
+    # Debugging
+    #print(text, file=sys.stderr)
+    #print(open(tempdir + "/log").read(), file=sys.stderr)
