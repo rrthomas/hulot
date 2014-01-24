@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Hulot converter: text/x-tex→text/html
-# © Reuben Thomas 2002-2011
+# © Reuben Thomas 2002-2014
 
 import os
 from os.path import basename, dirname
@@ -18,8 +18,10 @@ with tempfile.TemporaryDirectory() as tempdir:
     # Workaround for poems: if no H1, extract title element (if there's a real one, not just the filename) and reinject as H1
     if not re.search('<H1[^>]*>', text, flags=re.IGNORECASE):
         m = re.search('<TITLE[^>]*>(.*)</TITLE>', text, flags=re.MULTILINE | re.DOTALL)
-        title = m.group(1)
-        if title and title.find('/tmp') == -1:
-            text = re.sub('(<BODY[^>]*>)', r'\1<H1>' + title + '</H1>', text)
+        try:
+            title = m.group(1)
+            if title.find('/tmp') == -1:
+                text = re.sub('(<BODY[^>]*>)', r'\1<H1>' + title + '</H1>', text)
+        except: pass
     sys.stdout.buffer.write(text.encode('utf-8'))
     #print(open(tempdir + "/log").read()), file=sys.stderr) # Useful for debugging
