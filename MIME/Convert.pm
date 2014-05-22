@@ -8,12 +8,10 @@
 
 # FIXME: Implement many-to-many converters using convert and pacpl.
 
-# TODO: extend Convert.pm to a program with many MIME type
-# conversions. Can also think about systematic transformations such as
-# cropping and scaling pictures, or downsampling sound. Should be
-# provided by different programs, one for each of a limited set of
-# canonical types, which can be converted to from any other type of
-# the same sort.
+# TODO: Can also think about systematic transformations such as cropping and
+# scaling pictures, or downsampling sound. Should be provided by different
+# programs, one for each of a limited set of canonical types, which can be
+# converted to from any other type of the same sort.
 
 require 5.8.4;
 package MIME::Convert;
@@ -138,9 +136,22 @@ sub highlight {
      return scalar(slurp '<:raw', \*READER);
    },
 
+   # FIXME: Automate detection of file filters (use on-disk array?)
    "application/pdf>application/postscript" => sub {
      my ($file) = @_;
      open(READER, "-|", "application_pdf→application_postscript", $file);
+     return scalar(slurp '<:raw', \*READER);
+   },
+
+   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet>text/csv" => sub {
+     my ($file) = @_;
+     open(READER, "-|", "application_vnd.openxmlformats-officedocument.spreadsheetml.sheet→text_csv", $file);
+     return scalar(slurp '<:raw', \*READER);
+   },
+
+   "text/csv>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => sub {
+     my ($file) = @_;
+     open(READER, "-|", "text_csv→application_vnd.openxmlformats-officedocument.spreadsheetml.sheet", $file);
      return scalar(slurp '<:raw', \*READER);
    },
 
@@ -187,6 +198,7 @@ sub convert {
   $srctype ||= "application/octet-stream";
   $desttype ||= "application/octet-stream";
   return scalar(slurp '<:raw', $file) if $srctype eq $desttype;
+  # FIXME: return error if no converter available
   return "" if ($file ne "-" && !-e $file) || !defined($Converters{"$srctype>$desttype"});
   return $Converters{"$srctype>$desttype"}($file, $srctype, $desttype);
 }

@@ -1,0 +1,18 @@
+#!/usr/bin/env perl
+# Hulot converter: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet→text/csv
+# © Reuben Thomas 2014
+
+use strict;
+use warnings;
+
+use File::Basename;
+use File::Temp qw(tempdir);
+
+use Perl6::Slurp;
+
+my $file = $ARGV[0];
+$file =~ s/\.csv$//;
+my $tempdir = tempdir(CLEANUP => 1);
+system "soffice -env:UserInstallation=file:///`xdg-config-dir`/libreoffice-headless --headless --convert-to xlsx --outdir $tempdir \"$file.csv\" > $tempdir/log";
+#print STDERR scalar(slurp "$tempdir/log"); # useful for debugging
+print scalar(slurp '<:raw', "$tempdir/" . basename($file) . ".xlsx");
