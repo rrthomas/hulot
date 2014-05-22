@@ -13,6 +13,8 @@ use Perl6::Slurp;
 my $file = $ARGV[0];
 $file =~ s/\.tex$//;
 my $tempdir = tempdir(CLEANUP => 1);
+# FIXME: Use multi-argument form
+# FIXME: Extract a method for running in a temp directory with known output name like this: also useful for e.g. Excel to CSV
 system "cd $tempdir; env BIBINPUTS=\"" . dirname($file) . ":\" TEXINPUTS=\"" . dirname($file) . ":\" latex-mk --pdflatex \"$file\" > $tempdir/log";
-#return scalar(slurp "$tempdir/log"); # useful for debugging
+#print STDERR scalar(slurp "$tempdir/log"); # useful for debugging
 print scalar(slurp '<:raw', "$tempdir/" . basename($file) . ".pdf");
