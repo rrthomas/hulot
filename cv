@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 # cv
 # Convert files from one MIME type to another
-# (c) Reuben Thomas 2006-2011
+# (c) Reuben Thomas 2006-2014
 
 use strict;
 use warnings;
@@ -27,7 +27,7 @@ if ($#ARGV < 1 || $#ARGV > 2) {
 my $infile = shift;
 my $outfile = shift;
 my $intype = getMimeType($infile);
-$intype = mimetype($infile) if $intype eq "application/octet-stream";
+$intype = mimetype($infile) if $intype eq "binary" || $intype eq "application/octet-stream" || $intype eq "text/plain";
 my $outtype;
 if ($#ARGV == 0) {
   $outtype = shift;
