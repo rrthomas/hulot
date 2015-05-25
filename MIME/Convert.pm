@@ -208,8 +208,8 @@ sub convert {
   $srctype ||= "application/octet-stream";
   $desttype ||= "application/octet-stream";
   return scalar(slurp '<:raw', $file) if $srctype eq $desttype;
-  # FIXME: return error if no converter available
-  return "" if ($file ne "-" && !-e $file) || !defined($Converters{"$srctype>$desttype"});
+  die "no converter found\n" if !defined($Converters{"$srctype>$desttype"});
+  die "file not found\n" if $file ne "-" && !-e $file;
   return $Converters{"$srctype>$desttype"}($file, $srctype, $desttype, $fileext, $filebase);
 }
 
