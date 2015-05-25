@@ -1,6 +1,6 @@
 # Convert.pm
 # Convert one MIME type into another
-# (c) 2002-2011 Reuben Thomas (rrt@sc3d.org, http://rrt.sc3d.org/)
+# (c) 2002-2015 Reuben Thomas (rrt@sc3d.org, http://rrt.sc3d.org/)
 # Distributed under the GNU General Public License version 3, or (at
 # your option) any later version.
 
@@ -144,8 +144,15 @@ sub highlight {
    },
 
    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet>text/csv" => sub {
-     my ($file) = @_;
-     open(READER, "-|", "application_vnd.openxmlformats-officedocument.spreadsheetml.sheet→text_csv", $file);
+     my ($file, $srctype, $desttype, $fileext, $filebase) = @_;
+     open(READER, "-|", "application_vnd.openxmlformats-officedocument.spreadsheetml.sheet→text_csv", $file, $fileext, $filebase);
+     return scalar(slurp '<:raw', \*READER);
+   },
+
+   "application/vnd.ms-excel>text/csv" => sub {
+     my ($file, $srctype, $desttype, $fileext, $filebase) = @_;
+     # FIXME: use symlink for filter
+     open(READER, "-|", "application_vnd.openxmlformats-officedocument.spreadsheetml.sheet→text_csv", $file, $fileext, $filebase);
      return scalar(slurp '<:raw', \*READER);
    },
 
@@ -194,13 +201,16 @@ sub highlight {
 
 sub convert {
   my ($file, $srctype, $desttype) = @_;
+  $file =~ /^(.*)\.(.*)$/;
+  my $filebase = $1 || "";
+  my $fileext = $2 || "";
   #print STDERR $file, " ", $srctype, " ", $desttype, " ", defined($Converters{"$srctype>$desttype"}), "\n";
   $srctype ||= "application/octet-stream";
   $desttype ||= "application/octet-stream";
   return scalar(slurp '<:raw', $file) if $srctype eq $desttype;
   # FIXME: return error if no converter available
   return "" if ($file ne "-" && !-e $file) || !defined($Converters{"$srctype>$desttype"});
-  return $Converters{"$srctype>$desttype"}($file, $srctype, $desttype);
+  return $Converters{"$srctype>$desttype"}($file, $srctype, $desttype, $fileext, $filebase);
 }
 
 sub converters {
