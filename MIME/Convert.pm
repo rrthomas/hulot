@@ -156,6 +156,13 @@ sub highlight {
      return scalar(slurp '<:raw', \*READER);
    },
 
+   "application/vnd.ms-office>text/csv" => sub {
+     my ($file, $srctype, $desttype, $fileext, $filebase) = @_;
+     # FIXME: use symlink for filter
+     open(READER, "-|", "application_vnd.openxmlformats-officedocument.spreadsheetml.sheet→text_csv", $file, $fileext, $filebase);
+     return scalar(slurp '<:raw', \*READER);
+   },
+
    "text/csv>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => sub {
      my ($file) = @_;
      open(READER, "-|", "text_csv→application_vnd.openxmlformats-officedocument.spreadsheetml.sheet", $file);
