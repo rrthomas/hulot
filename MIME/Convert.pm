@@ -130,6 +130,12 @@ sub highlight {
      return scalar(slurp '<:raw', \*READER);
    },
 
+   "text/markdown>text/html" => sub {
+     my ($file) = @_;
+     open(READER, "-|", "markdown", $file);
+     return scalar(slurp '<:raw', \*READER);
+   },
+
    "text/x-tex>application/pdf" => sub {
      my ($file) = @_;
      open(READER, "-|", "text_x-tex→application_pdf", $file);
