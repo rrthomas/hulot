@@ -212,6 +212,7 @@ sub highlight {
   );
 
 
+# FIXME: Detect and return errors, so that e.g. DarkGlass can give a generic error instead of leaking permissions information
 sub convert {
   my ($file, $srctype, $desttype) = @_;
   $file =~ /^(.*)\.(.*)$/;
