@@ -132,7 +132,7 @@ sub highlight {
 
    "text/markdown>text/html" => sub {
      my ($file) = @_;
-     open(READER, "-|", "makepage", "-f", "nopants,noalphalist", $file);
+     open(READER, "-|", "makepage", "-f", "nopants,noalphalist,nostyle", $file);
      return scalar(slurp '<:raw', \*READER);
    },
 
