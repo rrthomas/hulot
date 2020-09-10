@@ -70,6 +70,15 @@ sub highlight {
   return $html;
 }
 
+sub audioToMp3 {
+  my ($file) = @_;
+  $file = untaint($file);
+  my $tempdir = tempdir(CLEANUP => 1);
+  my $tempfile = "tmp";
+  system "pacpl", "--verbose", "--to", "mp3", "--outdir=$tempdir", "--outfile=$tempfile", $file;
+  return scalar(slurp '<:raw', "$tempdir/$tempfile.mp3");
+}
+
 %Converters =
   (
    "application/x-directory>text/plain" => sub {
@@ -201,14 +210,9 @@ sub highlight {
      return scalar(slurp '<:raw', \*READER);
    },
 
-   # FIXME: generalise the function to arbitrary audio types, using output of pacpl -f
-   "audio/x-flac>audio/mpeg" => sub {
-     my ($file) = @_;
-     my $tempdir = tempdir(CLEANUP => 1);
-     my $tempfile = "$tempdir/tmp.mp3";
-     system "pacpl", "--flactomp3", "--file=\"$file\"", "--file=\"$tempfile\"";
-     return scalar(slurp '<:raw', $tempfile);
-   },
+   # FIXME: generalise the function to arbitrary audio types, using output of pacpl --formats
+   "audio/x-flac>audio/mpeg" => \&audioToMp3,
+   "audio/x-opus+ogg>audio/mpeg" => \&audioToMp3,
   );
 
 
