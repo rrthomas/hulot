@@ -73,10 +73,8 @@ sub highlight {
 sub audioToMp3 {
   my ($file) = @_;
   $file = untaint($file);
-  my $tempdir = tempdir(CLEANUP => 1);
-  my $tempfile = "tmp";
-  system "pacpl", "--verbose", "--to", "mp3", "--outdir=$tempdir", "--outfile=$tempfile", $file;
-  return scalar(slurp '<:raw', "$tempdir/$tempfile.mp3");
+  open(READER, "-|", "ffmpeg", "-loglevel", "quiet", "-i", $file, "-f", "mp3", "-");
+  return scalar(slurp '<:raw', \*READER);
 }
 
 %Converters =
