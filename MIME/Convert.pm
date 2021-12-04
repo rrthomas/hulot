@@ -211,6 +211,7 @@ sub audioToMp3 {
    # FIXME: generalise the function to arbitrary audio types, using output of pacpl --formats
    "audio/x-flac>audio/mpeg" => \&audioToMp3,
    "audio/x-opus+ogg>audio/mpeg" => \&audioToMp3,
+   "audio/ogg>audio/mpeg" => \&audioToMp3,
   );
 
 
