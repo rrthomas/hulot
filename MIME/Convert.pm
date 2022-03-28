@@ -1,6 +1,6 @@
 # Convert.pm
 # Convert one MIME type into another
-# (c) 2002-2017 Reuben Thomas (rrt@sc3d.org, http://rrt.sc3d.org/)
+# (c) 2002-2022 Reuben Thomas (rrt@sc3d.org, http://rrt.sc3d.org/)
 # Distributed under the GNU General Public License version 3, or (at
 # your option) any later version.
 
@@ -139,7 +139,7 @@ sub audioToMp3 {
 
    "text/markdown>text/html" => sub {
      my ($file) = @_;
-     open(READER, "-|", "makepage", "-f", "footnote,nopants,noalphalist,nostyle", $file);
+     open(READER, "-|", "makepage", "-f", "footnote,nopants,noalphalist,nostyle,fencedcode", $file);
      return scalar(slurp '<:raw', \*READER);
    },
 
