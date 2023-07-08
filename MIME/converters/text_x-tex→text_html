@@ -14,7 +14,7 @@ with tempfile.TemporaryDirectory() as tempdir:
     filebase = re.sub('.tex$', '', basename(file)) # FIXME: Better way to parse filenames?
     # FIXME: Move customization of special HeVeA files into web.pl
     # FIXME: Have per-user path configured somewhere
-    subprocess.check_call("cd " + tempdir + "; cp \"" + file + "\" .; env TEXMFDBS=/home/rrt/texmf: BIBINPUTS=\"" + dirname(file) + ":\" TEXINPUTS=\"" + dirname(file) + ":\" latex-mk --pdflatex \"" + file + "\" > " + tempdir + "/log; hevea -fix -I \"" + os.environ['HOME'] + "/texmf/hevea\" -I \"" + dirname(file) + "\" sym.hva latex2html.hva local.hva \"" + filebase + "\" >> " + tempdir + "/log", shell=True)
+    subprocess.check_call("cd " + tempdir + "; cp \"" + file + "\" .; env TEXMFDBS=" + os.environ['HOME'] + "/texmf: BIBINPUTS=\"" + dirname(file) + ":\" TEXINPUTS=\"" + dirname(file) + ":\" latex-mk --pdflatex \"" + file + "\" > " + tempdir + "/log; hevea -fix -I \"" + os.environ['HOME'] + "/texmf/hevea\" -I \"" + dirname(file) + "\" sym.hva latex2html.hva local.hva \"" + filebase + "\" >> " + tempdir + "/log", shell=True)
     text = open(tempdir + '/' + filebase + '.html', encoding='utf-8').read()
     # Workaround for poems: if no H1, extract title element (if there's a real one, not just the filename) and reinject as H1
     if not re.search('<H1[^>]*>', text, flags=re.IGNORECASE):
