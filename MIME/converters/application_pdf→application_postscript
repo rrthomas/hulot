@@ -11,7 +11,7 @@ use File::Slurp; # for write_file
 my $file = $ARGV[0];
 if ($file eq "-") {
   my $tempdir = tempdir(CLEANUP => 1);
-  $file = "$tempdir/tmp.dvi";
+  $file = "$tempdir/tmp.pdf";
   write_file($file, {binmode => 'raw'}, scalar(slurp '<:raw', \*STDIN));
 }
 system "pdf2ps", $file, "-";
