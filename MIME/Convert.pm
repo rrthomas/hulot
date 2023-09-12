@@ -63,8 +63,7 @@ sub highlight {
   my $css_file = "$tempdir/highlight.css";
   my $syntax = $srctype;
   $syntax = $mime_to_ext{$syntax}; # FIXME: Use a central tool
-  open(READER, "-|", "highlight", $file, "-c", $css_file, "-S", $syntax);
-  my $html = scalar(slurp '<:raw', \*READER);
+  my $html = run("highlight", $file, "-c", $css_file, "-S", $syntax);
   my $css = slurp '<:raw', $css_file;
   $html =~ s|(<body[^>]*>)|"$1<style type=\"text/css\">$css</style>"|e;
   return $html;
@@ -72,17 +71,22 @@ sub highlight {
 
 sub audioToMp3 {
   my ($file) = @_;
-  $file = untaint($file);
-  open(READER, "-|", "ffmpeg", "-loglevel", "quiet", "-i", $file, "-f", "mp3", "-");
-  return scalar(slurp '<:raw', \*READER);
+  return run("ffmpeg", "-loglevel", "quiet", "-i", $file, "-f", "mp3", "-");
+}
+
+sub run {
+  my @cmd = @_;
+  open(READER, "-|", @cmd) or die "command $cmd[0] failed (open)";
+  my $output = scalar(slurp '<:raw', \*READER);
+  close(READER) or die "command $cmd[0] failed (close)";
+  return $output;
 }
 
 %Converters =
   (
    "application/x-directory>text/plain" => sub {
      my ($file) = @_;
-     open(READER, "-|", "ls", $file);
-     return scalar(slurp '<:raw', \*READER);
+     return run("ls", $file);
    },
 
    # FIXME: Should have a rule for this
@@ -133,79 +137,68 @@ sub audioToMp3 {
 
    "text/x-tex>text/html" => sub {
      my ($file) = @_;
-     open(READER, "-|", "text_x-tex→text_html", $file);
-     return scalar(slurp '<:raw', \*READER);
+     return run("text_x-tex→text_html", $file);
    },
 
    "text/markdown>text/html" => sub {
      my ($file) = @_;
-     open(READER, "-|", "makepage", "-f", "footnote,nopants,noalphalist,nostyle,fencedcode", $file);
-     return scalar(slurp '<:raw', \*READER);
+     return run("makepage", "-f", "footnote,nopants,noalphalist,nostyle,fencedcode", $file);
    },
 
    "text/x-tex>application/pdf" => sub {
      my ($file) = @_;
-     open(READER, "-|", "text_x-tex→application_pdf", $file);
-     return scalar(slurp '<:raw', \*READER);
+     return run("text_x-tex→application_pdf", $file);
    },
 
    # FIXME: Automate detection of file filters (use on-disk array?)
    "application/pdf>application/postscript" => sub {
      my ($file) = @_;
-     open(READER, "-|", "application_pdf→application_postscript", $file);
-     return scalar(slurp '<:raw', \*READER);
+     return run("application_pdf→application_postscript", $file);
    },
 
    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet>text/csv" => sub {
      my ($file, $srctype, $desttype, $fileext, $filebase) = @_;
-     open(READER, "-|", "application_vnd.openxmlformats-officedocument.spreadsheetml.sheet→text_csv", $file, $fileext, $filebase);
-     return scalar(slurp '<:raw', \*READER);
+     return run("application_vnd.openxmlformats-officedocument.spreadsheetml.sheet→text_csv", $file, $fileext, $filebase);
    },
 
    "application/vnd.ms-excel>text/csv" => sub {
      my ($file, $srctype, $desttype, $fileext, $filebase) = @_;
      # FIXME: use symlink for filter
-     open(READER, "-|", "application_vnd.openxmlformats-officedocument.spreadsheetml.sheet→text_csv", $file, $fileext, $filebase);
-     return scalar(slurp '<:raw', \*READER);
+     return run("application_vnd.openxmlformats-officedocument.spreadsheetml.sheet→text_csv", $file, $fileext, $filebase);
    },
 
    "application/vnd.ms-office>text/csv" => sub {
      my ($file, $srctype, $desttype, $fileext, $filebase) = @_;
      # FIXME: use symlink for filter
-     open(READER, "-|", "application_vnd.openxmlformats-officedocument.spreadsheetml.sheet→text_csv", $file, $fileext, $filebase);
-     return scalar(slurp '<:raw', \*READER);
+     return run("application_vnd.openxmlformats-officedocument.spreadsheetml.sheet→text_csv", $file, $fileext, $filebase);
    },
 
    "text/csv>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => sub {
      my ($file) = @_;
-     open(READER, "-|", "text_csv→application_vnd.openxmlformats-officedocument.spreadsheetml.sheet", $file);
-     return scalar(slurp '<:raw', \*READER);
+     return run("text_csv→application_vnd.openxmlformats-officedocument.spreadsheetml.sheet", $file);
    },
 
    "application/x-dvi>application/postscript" => sub {
      my ($file) = @_;
-     open(READER, "-|", "application_x-dvi→application_postscript", $file);
-     return scalar(slurp '<:raw', \*READER);
+     return run("application_x-dvi→application_postscript", $file);
    },
 
    "image/x-epoc-sketch>image/png" => sub {
      my ($file) = @_;
      if ($file eq "-") {
-       open(READER, "-|", "psiconv", "--type=PNG");
+       return run("psiconv", "--type=PNG");
      } else {
-       open(READER, "-|", "psiconv", "--type=PNG", $file);
+       return run("psiconv", "--type=PNG", $file);
      }
-     return scalar(slurp '<:raw', \*READER);
    },
 
    "image/x-epoc-sketch>image/jpeg" => sub {
      my ($file) = @_;
      if ($file eq "-") {
-       open(READER, "-|", "psiconv", "--type=JPEG");
+       return run("psiconv", "--type=JPEG");
      } else {
-       open(READER, "-|", "psiconv", "--type=JPEG", $file);
+       return run("psiconv", "--type=JPEG", $file);
      }
-     return scalar(slurp '<:raw', \*READER);
    },
 
    # FIXME: generalise the function to arbitrary audio types, using output of pacpl --formats
