@@ -100,6 +100,7 @@ sub run {
    "text/x-mail>text/plain" => \&renderId,
    "text/x-news>text/plain" => \&renderId,
    "text/x-readme>text/plain" => \&renderId,
+   "text/markdown>text/plain" => \&renderId,
 
    # FIXME: Reuse (and expand) this list of programming languages
    "text/x-c>text/plain" => \&renderId,
