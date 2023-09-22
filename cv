@@ -16,8 +16,8 @@ use RRT::Misc;
 my $name = basename($0);
 
 # FIXME: Add support for auto-decompression
-if ($#ARGV < 1 || $#ARGV > 2) {
-  die "Usage: $name IN-FILE OUT-FILE [OUT-MIME-TYPE]\n";
+if ($#ARGV < 1 || $#ARGV > 3) {
+  die "Usage: $name IN-FILE OUT-FILE [[OUT-MIME-TYPE] IN-MIME-TYPE]\n";
 }
 
 my $infile = shift;
@@ -25,10 +25,13 @@ my $outfile = shift;
 my $intype = getMimeType($infile);
 $intype = mimetype($infile) if $intype eq "binary" || $intype eq "application/octet-stream" || $intype eq "text/plain";
 my $outtype;
-if ($#ARGV == 0) {
+if ($#ARGV >= 0) {
   $outtype = shift;
 } else {
   $outtype = mimetype($outfile);
+}
+if ($#ARGV == 0) {
+  $intype = shift;
 }
 #print STDERR "$infile $intype $outfile $outtype\n";
 if ($outfile eq "-") {
