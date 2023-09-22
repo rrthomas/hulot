@@ -1,6 +1,0 @@
-#! /bin/sh
-# Convert an OGG file to MP3
-# RRT 5/8/04
-oggdec -o .$$.wav - < "$1"
-lame .$$.wav "${1%.ogg}.mp3"
-rm -f .$$.wav

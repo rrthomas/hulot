@@ -1,7 +1,0 @@
-#! /bin/sh
-# Convert FLAC to Ogg Vorbis
-# RRT   25th October 2006
-for i; do
-   root=${i%.flac}
-   flac123 --wav=- -q "$root.flac" | oggenc -o "$root.ogg" -
-done

@@ -1,7 +1,0 @@
-#! /bin/sh
-# Convert an MP4 file to MP3
-# RRT 12/8, 13/9/06
-root=${1%.m4a}
-faad "$root.m4a"
-lame "$root.wav" "$root.mp3"
-rm -f "$root.wav"
