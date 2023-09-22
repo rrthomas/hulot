@@ -40,12 +40,6 @@ my $module_dir = module_path("MIME::Convert");
 $module_dir =~ s|/Convert.pm||;
 $ENV{PATH} .= $Config{path_sep} . catfile($module_dir, "converters");
 
-# Identity function for null transformers
-sub renderId {
-  my ($file) = @_;
-  return scalar(slurp '<:raw', $file);
-}
-
 sub run {
   my @cmd = @_;
   open(READER, "-|", @cmd) or die "command $cmd[0] failed (open)";
@@ -71,30 +65,90 @@ sub run {
 
    # Treat empty files as text
    # FIXME: make this application/x-empty>*
-   "application/x-empty>text/html" => \&renderId,
+   "application/x-empty>text/html" => sub {
+     my ($file) = @_;
+     return run("application_x-empty→text/html", $file);
+   },
 
    # Types trivially transformable
-   "text/x-mail>text/plain" => \&renderId,
-   "text/x-news>text/plain" => \&renderId,
-   "text/x-readme>text/plain" => \&renderId,
-   "text/markdown>text/plain" => \&renderId,
+   "text/x-mail>text/plain" => sub {
+     my ($file) = @_;
+     return run("text_x-mail→text_plain", $file);
+   },
+   "text/x-news>text/plain" => sub {
+     my ($file) = @_;
+     return run("text_x-news→text_plain", $file);
+   },
+   "text/x-readme>text/plain" => sub {
+     my ($file) = @_;
+     return run("text_x-readme→text_plain", $file);
+   },
+   "text/markdown>text/plain" => sub {
+     my ($file) = @_;
+     return run("text_markdown→text_plain", $file);
+   },
 
    # FIXME: Reuse (and expand) this list of programming languages
-   "text/x-c>text/plain" => \&renderId,
-   "text/x-c++>text/plain" => \&renderId,
-   "text/x-fortran>text/plain" => \&renderId,
-   "text/x-makefile>text/plain" => \&renderId,
-   "text/x-pl1>text/plain" => \&renderId,
-   "text/x-asm>text/plain" => \&renderId,
-   "text/x-pascal>text/plain" => \&renderId,
-   "text/x-java>text/plain" => \&renderId,
-   "text/x-bcpl>text/plain" => \&renderId,
-   "text/x-m4>text/plain" => \&renderId,
-   "text/x-po>text/plain" => \&renderId,
-   "text/x-perl>text/plain" => \&renderId,
-   "text/x-python>text/plain" => \&renderId,
-   "text/x-ruby>text/plain" => \&renderId,
-   "text/x-shellscript>text/plain" => \&renderId,
+   "text/x-c>text/plain" => sub {
+     my ($file) = @_;
+     return run("text_x-c→text_plain", $file);
+   },
+   "text/x-c++>text/plain" => sub {
+     my ($file) = @_;
+     return run("text_x-c++→text_plain", $file);
+   },
+   "text/x-fortran>text/plain" => sub {
+     my ($file) = @_;
+     return run("text_x-fortran→text_plain", $file);
+   },
+   "text/x-makefile>text/plain" => sub {
+     my ($file) = @_;
+     return run("text_x-makefile→text_plain", $file);
+   },
+   "text/x-pl1>text/plain" => sub {
+     my ($file) = @_;
+     return run("text_x-pl1→text_plain", $file);
+   },
+   "text/x-asm>text/plain" => sub {
+     my ($file) = @_;
+     return run("text_x-asm→text_plain", $file);
+   },
+   "text/x-pascal>text/plain" => sub {
+     my ($file) = @_;
+     return run("text_x-pascal→text_plain", $file);
+   },
+   "text/x-java>text/plain" => sub {
+     my ($file) = @_;
+     return run("text_x-java→text_plain", $file);
+   },
+   "text/x-bcpl>text/plain" => sub {
+     my ($file) = @_;
+     return run("text_x-bcpl→text_plain", $file);
+   },
+   "text/x-m4>text/plain" => sub {
+     my ($file) = @_;
+     return run("text_x-m4→text_plain", $file);
+   },
+   "text/x-po>text/plain" => sub {
+     my ($file) = @_;
+     return run("text_x-po→text_plain", $file);
+   },
+   "text/x-perl>text/plain" => sub {
+     my ($file) = @_;
+     return run("text_x-perl→text_plain", $file);
+   },
+   "text/x-python>text/plain" => sub {
+     my ($file) = @_;
+     return run("text_x-python→text_plain", $file);
+   },
+   "text/x-ruby>text/plain" => sub {
+     my ($file) = @_;
+     return run("text_x-ruby→text_plain", $file);
+   },
+   "text/x-shellscript>text/plain" => sub {
+     my ($file) = @_;
+     return run("text_x-shellscript→text_plain", $file);
+   },
 
    # Programming languages to HTML with highlight
    "text/x-c>text/html" => sub {
