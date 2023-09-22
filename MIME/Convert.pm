@@ -1,6 +1,6 @@
 # Convert.pm
 # Convert one MIME type into another
-# (c) 2002-2022 Reuben Thomas (rrt@sc3d.org, http://rrt.sc3d.org/)
+# (c) 2002-2023 Reuben Thomas (rrt@sc3d.org, https://github.com/rrthomas/Hulot)
 # Distributed under the GNU General Public License version 3, or (at
 # your option) any later version.
 
@@ -20,17 +20,25 @@ use utf8;
 use strict;
 use warnings;
 
+use Config;
 use File::Basename;
 use File::Temp qw(tempdir);
 use Encode;
 
 use Perl6::Slurp;
+use File::Spec::Functions qw(catfile);
 use File::Slurp; # for write_file
+use Module::Path qw(module_path);
 
 use RRT::Misc;
 
 use vars qw(%Converters);
 
+
+# Add on-disk converters to PATH
+my $module_dir = module_path("MIME::Convert");
+$module_dir =~ s|/Convert.pm||;
+$ENV{PATH} .= $Config{path_sep} . catfile($module_dir, "converters");
 
 # Identity function for null transformers
 sub renderId {
