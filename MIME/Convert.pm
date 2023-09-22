@@ -46,36 +46,6 @@ sub renderId {
   return scalar(slurp '<:raw', $file);
 }
 
-# Use highlight to convert source code to HTML
-sub highlight {
-  my %mime_to_ext = (
-       "text/x-c" => "c",
-       "text/x-c++" => "cc",
-       "text/x-fortran" => "f",
-       "text/x-makefile" => "mak",
-       "text/x-pl1" => "pl1",
-       "text/x-asm" => "asm",
-       "text/x-pascal" => "pas",
-       "text/x-java" => "java",
-       "text/x-bcpl" => "b",
-       "text/x-m4" => "m4",
-       "text/x-po" => "po",
-       "text/x-perl" => "pl",
-       "text/x-python" => "py",
-       "text/x-ruby" => "rb",
-       "text/x-shellscript" => "sh",
-      );
-  my ($file, $srctype, $desttype) = @_;
-  my $tempdir = tempdir(CLEANUP => 1);
-  my $css_file = "$tempdir/highlight.css";
-  my $syntax = $srctype;
-  $syntax = $mime_to_ext{$syntax}; # FIXME: Use a central tool
-  my $html = run("highlight", $file, "-c", $css_file, "-S", $syntax);
-  my $css = slurp '<:raw', $css_file;
-  $html =~ s|(<body[^>]*>)|"$1<style type=\"text/css\">$css</style>"|e;
-  return $html;
-}
-
 sub audioToMp3 {
   my ($file) = @_;
   return run("ffmpeg", "-loglevel", "quiet", "-i", $file, "-f", "mp3", "-");
@@ -127,21 +97,66 @@ sub run {
    "text/x-shellscript>text/plain" => \&renderId,
 
    # Programming languages to HTML with highlight
-   "text/x-c>text/html" => \&highlight,
-   "text/x-c++>text/html" => \&highlight,
-   "text/x-fortran>text/html" => \&highlight,
-   "text/x-makefile>text/html" => \&highlight,
-   "text/x-pl1>text/html" => \&highlight,
-   "text/x-asm>text/html" => \&highlight,
-   "text/x-pascal>text/html" => \&highlight,
-   "text/x-java>text/html" => \&highlight,
-   "text/x-bcpl>text/html" => \&highlight,
-   "text/x-m4>text/html" => \&highlight,
-   "text/x-po>text/html" => \&highlight,
-   "text/x-perl>text/html" => \&highlight,
-   "text/x-python>text/html" => \&highlight,
-   "text/x-ruby>text/html" => \&highlight,
-   "text/x-shellscript>text/html" => \&highlight,
+   "text/x-c>text/html" => sub {
+     my ($file) = @_;
+     return run("text_x-c→text_html", $file);
+   },
+   "text/x-c++>text/html" => sub {
+     my ($file) = @_;
+     return run("text_x-c++→text_html", $file);
+   },
+   "text/x-fortran>text/html" => sub {
+     my ($file) = @_;
+     return run("text_x-fortran→text_html", $file);
+   },
+   "text/x-makefile>text/html" => sub {
+     my ($file) = @_;
+     return run("text_x-makefile→text_html", $file);
+   },
+   "text/x-pl1>text/html" => sub {
+     my ($file) = @_;
+     return run("text_x-pl1→text_html", $file);
+   },
+   "text/x-asm>text/html" => sub {
+     my ($file) = @_;
+     return run("text_x-asm→text_html", $file);
+   },
+   "text/x-pascal>text/html" => sub {
+     my ($file) = @_;
+     return run("text_x-pascal→text_html", $file);
+   },
+   "text/x-java>text/html" => sub {
+     my ($file) = @_;
+     return run("text_x-java→text_html", $file);
+   },
+   "text/x-bcpl>text/html" => sub {
+     my ($file) = @_;
+     return run("text_x-bcpl→text_html", $file);
+   },
+   "text/x-m4>text/html" => sub {
+     my ($file) = @_;
+     return run("text_x-m4→text_html", $file);
+   },
+   "text/x-po>text/html" => sub {
+     my ($file) = @_;
+     return run("text_x-po→text_html", $file);
+   },
+   "text/x-perl>text/html" => sub {
+     my ($file) = @_;
+     return run("text_x-perl→text_html", $file);
+   },
+   "text/x-python>text/html" => sub {
+     my ($file) = @_;
+     return run("text_x-python→text_html", $file);
+   },
+   "text/x-ruby>text/html" => sub {
+     my ($file) = @_;
+     return run("text_x-ruby→text_html", $file);
+   },
+   "text/x-shellscript>text/html" => sub {
+     my ($file) = @_;
+     return run("text_x-shellscript→text_html", $file);
+   },
 
    "text/x-tex>text/html" => sub {
      my ($file) = @_;

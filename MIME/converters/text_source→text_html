@@ -1,0 +1,51 @@
+#!/usr/bin/env perl
+# Hulot converter: text/source→text/html (that is, source code to HTML)
+# © Reuben Thomas 2023
+
+use strict;
+use warnings;
+
+use File::Basename;
+use File::Temp qw(tempdir);
+
+use Perl6::Slurp;
+
+sub run {
+  my @cmd = @_;
+  open(READER, "-|", @cmd) or die "command $cmd[0] failed (open)";
+  my $output = scalar(slurp '<:raw', \*READER);
+  close(READER) or die "command $cmd[0] failed (close)";
+  return $output;
+}
+
+my $conversion = basename($0);
+$conversion =~ s|_|/|g;
+$conversion =~ m|^(.*)→(.*)$| or die "invalid conversion";
+my ($srctype, $desttype) = ($1, $2);
+
+# Use highlight to convert source code to HTML
+my %mime_to_ext = (
+  "text/x-c" => "c",
+  "text/x-c++" => "cc",
+  "text/x-fortran" => "f",
+  "text/x-makefile" => "mak",
+  "text/x-pl1" => "pl1",
+  "text/x-asm" => "asm",
+  "text/x-pascal" => "pas",
+  "text/x-java" => "java",
+  "text/x-bcpl" => "b",
+  "text/x-m4" => "m4",
+  "text/x-po" => "po",
+  "text/x-perl" => "pl",
+  "text/x-python" => "py",
+  "text/x-ruby" => "rb",
+  "text/x-shellscript" => "sh",
+ );
+my $file = $ARGV[0];
+my $tempdir = tempdir(CLEANUP => 1);
+my $css_file = "$tempdir/highlight.css";
+my $syntax = $mime_to_ext{$srctype}; # FIXME: Use a central tool
+my $html = run("highlight", $file, "-c", $css_file, "-S", $syntax);
+my $css = slurp '<:raw', $css_file;
+$html =~ s|(<body[^>]*>)|"$1<style type=\"text/css\">$css</style>"|e;
+print $html;
