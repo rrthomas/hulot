@@ -58,7 +58,12 @@ sub run {
   (
    "application/x-directory>text/plain" => sub {
      my ($file) = @_;
-     return run("ls", $file);
+     return run("application_x-directory→text_plain", $file);
+   },
+
+   "inode/directory>text/plain" => sub {
+     my ($file) = @_;
+     return run("inode_directory→text_plain", $file);
    },
 
    # FIXME: Should have a rule for this
