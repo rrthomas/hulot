@@ -59,7 +59,7 @@ def convert(
         filebase, fileext = "", ""
     # print(f"{file} {srctype} {desttype}", file=sys.stderr)
     if srctype == desttype:
-        return file.open(mode="rb").read()
+        return open(file, mode="rb").read()
     converter = mimetypes_to_converter(srctype, desttype)
     if not converter in Converters:
         raise IOError(f"no converter {converter} found")
