@@ -57,12 +57,12 @@ def convert(
         filebase, fileext = m[1], m[2]
     else:
         filebase, fileext = "", ""
-    converter = mimetypes_to_converter(srctype, desttype)
-    if not converter in Converters:
-        raise IOError(f"no converter {converter} found")
     # print(f"{file} {srctype} {desttype}", file=sys.stderr)
     if srctype == desttype:
         return file.open(mode="rb").read()
+    converter = mimetypes_to_converter(srctype, desttype)
+    if not converter in Converters:
+        raise IOError(f"no converter {converter} found")
     return subprocess.check_output(
         [
             os.path.join(converters_dir, converter),
