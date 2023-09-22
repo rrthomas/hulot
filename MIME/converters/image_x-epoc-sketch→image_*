@@ -10,7 +10,7 @@ use File::Basename;
 
 my $conversion = basename($0);
 my $desttype = $conversion;
-$desttype =~ s|^.*→image/||;
+$desttype =~ s|^.*image_||;
 $desttype = uc($desttype);
 my $file = $ARGV[0];
 if ($file eq "-") {

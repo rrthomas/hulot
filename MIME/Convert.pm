@@ -254,20 +254,12 @@ sub run {
 
    "image/x-epoc-sketch>image/png" => sub {
      my ($file) = @_;
-     if ($file eq "-") {
-       return run("psiconv", "--type=PNG");
-     } else {
-       return run("psiconv", "--type=PNG", $file);
-     }
+     return run("image_x-epoc-sketch→image_png", $file);
    },
 
    "image/x-epoc-sketch>image/jpeg" => sub {
      my ($file) = @_;
-     if ($file eq "-") {
-       return run("psiconv", "--type=JPEG");
-     } else {
-       return run("psiconv", "--type=JPEG", $file);
-     }
+     return run("image_x-epoc-sketch→image_jpeg", $file);
    },
 
    "audio/x-flac>audio/mpeg" => sub {
