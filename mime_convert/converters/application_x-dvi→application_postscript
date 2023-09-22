@@ -1,0 +1,19 @@
+#!/usr/bin/env perl
+# Hulot converter: application/x-dvi→application/postscript
+# © Reuben Thomas 2002-2011
+
+use strict;
+use warnings;
+
+use File::Temp qw(tempdir);
+
+use Perl6::Slurp;
+use File::Slurp; # for write_file
+
+my $file = $ARGV[0];
+if ($file eq "-") { # Standard input can't be a pipe for dvips
+  my $tempdir = tempdir(CLEANUP => 1);
+  $file = "$tempdir/tmp.dvi";
+  write_file($file, {binmode => 'raw'}, scalar(slurp '<:raw', \*STDIN));
+}
+system "dvips", "-o", "-", $file;

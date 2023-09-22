@@ -1,0 +1,21 @@
+#!/usr/bin/env perl
+# Hulot converter: text/x-tex→application/pdf
+# © Reuben Thomas 2002-2016
+
+use strict;
+use warnings;
+
+use File::Basename;
+use File::Temp qw(tempdir);
+
+use Perl6::Slurp;
+
+my $file = $ARGV[0];
+$file =~ s/\.tex$//;
+my $tempdir = tempdir(CLEANUP => 1);
+# FIXME: Use multi-argument form
+# FIXME: Extract a method for running in a temp directory with known output name like this: also useful for e.g. Excel to CSV
+# FIXME: Have per-user path configured somewhere
+system "cd $tempdir; env TEXMFDBS=$ENV{HOME}/texmf: BIBINPUTS=\"" . dirname($file) . ":\" TEXINPUTS=\"" . dirname($file) . ":\" latex-mk --pdflatex \"$file\" > $tempdir/log";
+#print STDERR scalar(slurp "$tempdir/log"); # useful for debugging
+print scalar(slurp '<:raw', "$tempdir/" . basename($file) . ".pdf");

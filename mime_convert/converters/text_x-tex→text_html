@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+# Hulot converter: text/x-tex→text/html
+# © Reuben Thomas 2002-2016
+
+import os
+from os.path import basename, dirname
+import sys
+import tempfile
+import re
+import subprocess
+
+file = sys.argv[1]
+with tempfile.TemporaryDirectory() as tempdir:
+    filebase = re.sub('.tex$', '', basename(file)) # FIXME: Better way to parse filenames?
+    # FIXME: Move customization of special HeVeA files into web.pl
+    # FIXME: Have per-user path configured somewhere
+    subprocess.check_call("cd " + tempdir + "; cp \"" + file + "\" .; env TEXMFDBS=" + os.environ['HOME'] + "/texmf: BIBINPUTS=\"" + dirname(file) + ":\" TEXINPUTS=\"" + dirname(file) + ":\" latex-mk --pdflatex \"" + file + "\" > " + tempdir + "/log; hevea -fix -I \"" + os.environ['HOME'] + "/texmf/hevea\" -I \"" + dirname(file) + "\" sym.hva latex2html.hva local.hva \"" + filebase + "\" >> " + tempdir + "/log", shell=True)
+    text = open(tempdir + '/' + filebase + '.html', encoding='utf-8').read()
+    # Workaround for poems: if no H1, extract title element (if there's a real one, not just the filename) and reinject as H1
+    if not re.search('<H1[^>]*>', text, flags=re.IGNORECASE):
+        m = re.search('<TITLE[^>]*>(.*)</TITLE>', text, flags=re.MULTILINE | re.DOTALL | re.IGNORECASE)
+        try:
+            title = m.group(1)
+            if title.find('/tmp') == -1:
+                text = re.sub('(<BODY[^>]*>)', r'\1<H1>' + title + '</H1>', text, flags=re.IGNORECASE)
+        except: pass
+    sys.stdout.buffer.write(text.encode('utf-8'))
+    # Debugging
+    #print(text, file=sys.stderr)
+    #print(open(tempdir + "/log").read(), file=sys.stderr)
