@@ -26,13 +26,15 @@ use Perl6::Slurp;
 use File::Spec::Functions qw(catfile);
 use Module::Path qw(module_path);
 
+use RRT::Misc;
+
 use vars qw(%Converters);
 
 
 # Add on-disk converters to PATH
 my $module_dir = module_path("MIME::Convert");
 $module_dir =~ s|/Convert.pm||;
-$ENV{PATH} .= $Config{path_sep} . catfile($module_dir, "converters");
+$ENV{PATH} .= untaint($Config{path_sep} . catfile($module_dir, "converters"));
 
 sub run {
   my @cmd = @_;
