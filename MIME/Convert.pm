@@ -234,14 +234,12 @@ sub run {
 
    "application/vnd.ms-excel>text/csv" => sub {
      my ($file, $srctype, $desttype, $fileext, $filebase) = @_;
-     # FIXME: use symlink for filter
-     return run("application_vnd.openxmlformats-officedocument.spreadsheetml.sheet→text_csv", $file, $fileext, $filebase);
+     return run("application_vnd.ms-excel→text_csv", $file, $fileext, $filebase);
    },
 
    "application/vnd.ms-office>text/csv" => sub {
      my ($file, $srctype, $desttype, $fileext, $filebase) = @_;
-     # FIXME: use symlink for filter
-     return run("application_vnd.openxmlformats-officedocument.spreadsheetml.sheet→text_csv", $file, $fileext, $filebase);
+     return run("application_vnd.ms-office→text_csv", $file, $fileext, $filebase);
    },
 
    "text/csv>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => sub {
