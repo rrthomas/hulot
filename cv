@@ -56,12 +56,12 @@ def die(code: int, msg: str) -> NoReturn:
 if args.intype is not None:
     intype = args.intype
 else:
-    intype = magic.from_file(args.infile)
+    intype = magic.from_file(args.infile, mime=True)
     if intype in ("binary", "application/octet-stream", "text/plain"):
         # Get a second opinion if type from libmagic is too general
-        intype = xdg.Mime.get_type2(args.infile)
+        intype = f"{xdg.Mime.get_type2(args.infile)}"
 if not args.outtype:
-    args.outtype = xdg.Mime.get_type2(args.outfile)
+    args.outtype = f"{xdg.Mime.get_type2(args.outfile)}"
 # print(args.infile, intype, args.outfile, args.outtype)
 try:
     with sys.stdout.buffer if args.outfile == "-" else open(args.outfile, "wb") as out:
