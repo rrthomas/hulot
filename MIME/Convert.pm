@@ -21,16 +21,10 @@ use strict;
 use warnings;
 
 use Config;
-use File::Basename;
-use File::Temp qw(tempdir);
-use Encode;
 
 use Perl6::Slurp;
 use File::Spec::Functions qw(catfile);
-use File::Slurp; # for write_file
 use Module::Path qw(module_path);
-
-use RRT::Misc;
 
 use vars qw(%Converters);
 
