@@ -1,0 +1,9 @@
+#!/usr/bin/env perl
+# Hulot converter: text/markdown→text/html
+# © Reuben Thomas 2002-2023
+
+use strict;
+use warnings;
+
+my $file = $ARGV[0];
+system "makepage", "-f", "footnote,nopants,noalphalist,nostyle,fencedcode", $file;
