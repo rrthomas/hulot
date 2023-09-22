@@ -16,6 +16,7 @@
 import os
 import re
 import subprocess
+from pathlib import Path
 
 converters_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "converters")
 Converters = set(os.listdir(converters_dir))
@@ -52,11 +53,8 @@ def convert(
 ):
     if file != "-" and not os.path.exists(file):
         raise IOError("file not found")
-    m = re.match(file, r"^(.*)\.(.*)$")
-    if m:
-        filebase, fileext = m[1], m[2]
-    else:
-        filebase, fileext = "", ""
+    path = Path(file)
+    filebase, fileext = path.stem, path.suffix
     # print(f"{file} {srctype} {desttype}", file=sys.stderr)
     if srctype == desttype:
         return open(file, mode="rb").read()

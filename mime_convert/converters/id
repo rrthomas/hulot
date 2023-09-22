@@ -1,0 +1,6 @@
+#!/usr/bin/env python3
+# The identity converter
+
+import sys
+
+sys.stdout.buffer.write(open(sys.argv[1], 'rb').read())

@@ -1,0 +1,7 @@
+#!/usr/bin/env python3
+# Safely run ls
+
+import sys
+import subprocess
+
+subprocess.call(['ls', sys.argv[1]])
