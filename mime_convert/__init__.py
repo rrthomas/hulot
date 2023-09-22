@@ -77,6 +77,9 @@ def converters(match_pat=r".*"):
     convs = []
     for conv in Converters:
         if re.search(match_pat, conv):
-            srctype, desttype = converter_to_mimetypes(conv)
-            convs.append(f"{srctype}→{desttype}")
+            try:
+                srctype, desttype = converter_to_mimetypes(conv)
+                convs.append(f"{srctype}→{desttype}")
+            except:
+                pass
     return convs
