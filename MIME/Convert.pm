@@ -28,7 +28,6 @@ use Perl6::Slurp;
 use File::Slurp; # for write_file
 
 use RRT::Misc;
-use RRT::Macro; # FIXME: Is this still needed?
 
 use vars qw(%Converters);
 
