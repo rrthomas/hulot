@@ -46,11 +46,6 @@ sub renderId {
   return scalar(slurp '<:raw', $file);
 }
 
-sub audioToMp3 {
-  my ($file) = @_;
-  return run("ffmpeg", "-loglevel", "quiet", "-i", $file, "-f", "mp3", "-");
-}
-
 sub run {
   my @cmd = @_;
   open(READER, "-|", @cmd) or die "command $cmd[0] failed (open)";
@@ -224,10 +219,18 @@ sub run {
      }
    },
 
-   # FIXME: generalise the function to arbitrary audio types, using output of pacpl --formats
-   "audio/x-flac>audio/mpeg" => \&audioToMp3,
-   "audio/x-opus+ogg>audio/mpeg" => \&audioToMp3,
-   "audio/ogg>audio/mpeg" => \&audioToMp3,
+   "audio/x-flac>audio/mpeg" => sub {
+     my ($file) = @_;
+     return run("audio_*→audio_mpeg", $file);
+   },
+   "audio/x-opus+ogg>audio/mpeg" => sub {
+     my ($file) = @_;
+     return run("audio_*→audio_mpeg", $file);
+   },
+   "audio/ogg>audio/mpeg" => sub {
+     my ($file) = @_;
+     return run("audio_*→audio_mpeg", $file);
+   },
   );
 
 
