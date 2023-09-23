@@ -1,19 +1,16 @@
-#!/usr/bin/env perl
+#!/usr/bin/env python3
 # Hulot converter: application/x-dvi→application/postscript
-# © Reuben Thomas 2002-2011
+# © Reuben Thomas 2002-2023
 
-use strict;
-use warnings;
+import contextlib
+import sys
+import subprocess
+from tempfile import TemporaryDirectory
 
-use File::Temp qw(tempdir);
-
-use Perl6::Slurp;
-use File::Slurp; # for write_file
-
-my $file = $ARGV[0];
-if ($file eq "-") { # Standard input can't be a pipe for dvips
-  my $tempdir = tempdir(CLEANUP => 1);
-  $file = "$tempdir/tmp.dvi";
-  write_file($file, {binmode => 'raw'}, scalar(slurp '<:raw', \*STDIN));
-}
-system "dvips", "-o", "-", $file;
+file = sys.argv[1]
+ctx_mgr = NamedTemporaryFile() if file == "-" else contextlib.nullcontext()
+with ctx_mgr as fp:
+    if file == "-": # Standard input can't be a pipe for dvips
+        fp.write(sys.stdin.buffer.read())
+        file = fp.name
+    subprocess.check_call(['dvips', "-o", "-", file])

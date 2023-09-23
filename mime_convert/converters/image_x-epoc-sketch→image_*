@@ -1,20 +1,17 @@
-#!/usr/bin/env perl
+#!/usr/bin/env python3
 # Hulot converter: image/x-epoc-sketch→image/*
-# © Reuben Thomas 2002-2011
+# © Reuben Thomas 2002-2023
 
-use utf8;
-use strict;
-use warnings;
+import os
+import sys
+import subprocess
+import re
 
-use File::Basename;
+conversion = os.path.basename(sys.argv[0])
+desttype = re.sub(r"^.*image_", "", conversion).upper()
 
-my $conversion = basename($0);
-my $desttype = $conversion;
-$desttype =~ s|^.*image_||;
-$desttype = uc($desttype);
-my $file = $ARGV[0];
-if ($file eq "-") {
-  system "psiconv", "--type=$desttype";
-} else {
-  system "psiconv", "--type=$desttype", $file;
-}
+file = sys.argv[1]
+args = ["psiconv", f"--type={desttype}"]
+if file != "-":
+    args.append(file)
+subprocess.check_call(args)

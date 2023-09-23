@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+# Hulot converter with LibreOffice
+# © Reuben Thomas 2014-2023
+
+import os
+import sys
+import subprocess
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+
+from mime_convert import converter_to_mimetypes
+
+
+converter = os.path.basename(sys.argv[0])
+(srctype, desttype) = converter_to_mimetypes(converter)
+
+mime_to_ext = {
+    "application/msword": "doc",
+    "application/vnd.oasis.opendocument.presentation": "odp",
+    "application/vnd.oasis.opendocument.spreadsheet": "ods",
+    "application/vnd.oasis.opendocument.text": "odt",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation": "pptx",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+    "application/vnd.ms-excel": "xls",
+    "application/vnd.ms-powerpoint": "ppt",
+    "text/csv": "csv",
+}
+file = Path(sys.argv[1])
+with TemporaryDirectory() as tempdir:
+    output = subprocess.check_output(
+        [
+            "soffice",
+            f"-env:UserInstallation=file:///{os.path.join(tempdir, 'libreoffice-headless')}",
+            "--headless",
+            "--convert-to",
+            mime_to_ext[desttype],
+            "--outdir",
+            tempdir,
+            file,
+        ]
+    )
+    # print(output, file=sys.stderr) # useful for debugging
+    sys.stdout.buffer.write(
+        open(os.path.join(tempdir, file.with_suffix("." + mime_to_ext[desttype]).name), "rb").read()
+    )

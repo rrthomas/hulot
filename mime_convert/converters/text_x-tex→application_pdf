@@ -1,21 +1,22 @@
-#!/usr/bin/env perl
+#!/usr/bin/python3
 # Hulot converter: text/x-tex→application/pdf
-# © Reuben Thomas 2002-2016
+# © Reuben Thomas 2002-2023
 
-use strict;
-use warnings;
+import os
+import sys
+from pathlib import Path
+from tempfile import TemporaryDirectory, mkdtemp
+import subprocess
 
-use File::Basename;
-use File::Temp qw(tempdir);
-
-use Perl6::Slurp;
-
-my $file = $ARGV[0];
-$file =~ s/\.tex$//;
-my $tempdir = tempdir(CLEANUP => 1);
-# FIXME: Use multi-argument form
-# FIXME: Extract a method for running in a temp directory with known output name like this: also useful for e.g. Excel to CSV
-# FIXME: Have per-user path configured somewhere
-system "cd $tempdir; env TEXMFDBS=$ENV{HOME}/texmf: BIBINPUTS=\"" . dirname($file) . ":\" TEXINPUTS=\"" . dirname($file) . ":\" latex-mk --pdflatex \"$file\" > $tempdir/log";
-#print STDERR scalar(slurp "$tempdir/log"); # useful for debugging
-print scalar(slurp '<:raw', "$tempdir/" . basename($file) . ".pdf");
+file = Path(os.path.abspath(sys.argv[1]))
+with TemporaryDirectory() as tempdir:
+    os.chdir(tempdir)
+    env = dict(os.environ)
+    env["TEXMFDBS"] = os.path.join(os.environ['HOME'], "texmf") + os.pathsep
+    env["TEXINPUTS"] = str(file.parent) + os.pathsep
+    env["BIBINPUTS"] = str(file.parent) + os.pathsep
+    output = subprocess.check_output(
+        ["latexmk", "--verbose", "-f", str(file)],
+        env = env,
+    )
+    sys.stdout.buffer.write(open(os.path.join(tempdir, file.with_suffix(".pdf").name), 'rb').read())

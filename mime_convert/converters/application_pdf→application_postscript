@@ -1,17 +1,14 @@
-#!/usr/bin/env perl
+#!/usr/bin/env python3
 
-use strict;
-use warnings;
+import contextlib
+import sys
+import subprocess
+from tempfile import NamedTemporaryFile
 
-use File::Temp qw(tempdir);
-
-use Perl6::Slurp;
-use File::Slurp; # for write_file
-
-my $file = $ARGV[0];
-if ($file eq "-") {
-  my $tempdir = tempdir(CLEANUP => 1);
-  $file = "$tempdir/tmp.pdf";
-  write_file($file, {binmode => 'raw'}, scalar(slurp '<:raw', \*STDIN));
-}
-system "pdf2ps", $file, "-";
+file = sys.argv[1]
+ctx_mgr = NamedTemporaryFile() if file == "-" else contextlib.nullcontext()
+with ctx_mgr as fp:
+    if file == "-":
+        fp.write(sys.stdin.buffer.read())
+        file = fp.name
+    subprocess.check_call(['pdf2ps', file, '-'])
