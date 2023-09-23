@@ -4,4 +4,4 @@
 import sys
 import subprocess
 
-subprocess.call(['ls', sys.argv[1]])
+subprocess.check_call(['ls', sys.argv[1]])
