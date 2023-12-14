@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+# Hulot converter: text/source→text/html (that is, source code to HTML) with Pygments
+# © Reuben Thomas 2023
+
+import os
+import sys
+from pygments import highlight
+from pygments.lexers import get_lexer_by_name
+from pygments.formatters import HtmlFormatter
+
+from mime_convert import converter_to_mimetypes
+
+
+converter = os.path.basename(sys.argv[0])
+(srctype, desttype) = converter_to_mimetypes(converter)
+
+mime_to_ext = {
+    "application/javascript": "javascript",
+    "application/json": "json",
+    "application/xml": "xml",
+    "image/svg+xml": "xml",
+    "text/html": "html",
+    "text/troff": "nroff",
+    "text/x-asm": "nasm",
+    "text/x-awk": "awk",
+    "text/x-c": "c",
+    "text/x-c++": "cpp",
+    "text/x-c++src": "cpp",
+    "text/x-chdr": "c",
+    "text/x-clojure": "clojure",
+    "text/x-crystal": "crystal",
+    "text/x-csrc": "c",
+    "text/x-diff": "diff",
+    "text/x-emacs-lisp": "emacs-lisp",
+    "text/x-execline": "execline",
+    "text/x-forth": "forth",
+    "text/x-fortran": "fortran",
+    "text/x-gawk": "gawk",
+    "text/x-java": "java",
+    "text/x-lisp": "common-lisp",
+    "text/x-lua": "lua",
+    "text/x-makefile": "make",
+    "text/x-msdos-batch": "bat",
+    "text/x-nawk": "nawk",
+    "text/x-objective-c": "objective-c",
+    "text/x-pascal": "pascal",
+    "text/x-perl": "perl",
+    "text/x-php": "php",
+    "text/x-po": "po",
+    "text/x-python": "python",
+    "text/x-script.python": "python",
+    "text/x-ruby": "ruby",
+    "text/x-shellscript": "sh",
+    # Workaround for TypeScript: mimetype doesn't recognize it.
+    "text/vnd.trolltech.linguist": "typescript",
+    "text/x-tcl": "tcl",
+    "text/x-tex": "latex",
+    "text/x-texinfo": "latex", # FIXME: texinfo really needs its own lexer
+    "text/x-ursa": "ursa",
+    "text/x-vala": "vala",
+    "text/xml": "xml",
+    "text/vnd.graphviz": "graphviz",
+}
+file = sys.argv[1]
+with open(file) as fh:
+    html = highlight(fh.read(), get_lexer_by_name(mime_to_ext[srctype]), HtmlFormatter(full=True))
+    print(html)
