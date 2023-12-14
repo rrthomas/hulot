@@ -15,8 +15,6 @@
 # programs, one for each of a limited set of canonical types, which can be
 # converted to from any other type of the same sort.
 
-from __future__ import annotations
-
 import importlib.metadata
 import os
 import sys
@@ -27,28 +25,37 @@ import subprocess
 from pathlib import Path
 from warnings import warn
 from typing import (
-    Optional, List, Union, Type, NoReturn, TextIO,
+    Optional,
+    List,
+    Tuple,
+    Union,
+    Type,
+    NoReturn,
+    TextIO,
 )
 
 import magic
-import xdg.Mime  # FIXME: write type stubs for this.
+import xdg.Mime
 
 VERSION = importlib.metadata.version("hulot")
 
 # Error messages
 prog: str
 
-def simple_warning( # pylint: disable=too-many-arguments
+
+def simple_warning(  # pylint: disable=too-many-arguments
     message: Union[Warning, str],
-    category: Type[Warning], # pylint: disable=unused-argument
-    filename: str, # pylint: disable=unused-argument
-    lineno: int, # pylint: disable=unused-argument
-    file: Optional[TextIO] = sys.stderr, # pylint: disable=redefined-outer-name
-    line: Optional[str] = None # pylint: disable=unused-argument
+    category: Type[Warning],  # pylint: disable=unused-argument
+    filename: str,  # pylint: disable=unused-argument
+    lineno: int,  # pylint: disable=unused-argument
+    file: Optional[TextIO] = sys.stderr,
+    line: Optional[str] = None,  # pylint: disable=unused-argument
 ) -> None:
-    print(f'{prog}: {message}', file=file or sys.stderr)
+    print(f"{prog}: {message}", file=file or sys.stderr)
+
 
 warnings.showwarning = simple_warning
+
 
 def die(code: int, msg: str) -> NoReturn:
     warn(Warning(msg))
@@ -68,13 +75,13 @@ Converters = set(os.listdir(converters_dir))
 # highlight and for identity transformations to text/plain.
 
 
-def mimetypes_to_converter(srctype, desttype):
+def mimetypes_to_converter(srctype: str, desttype: str) -> str:
     srctype_file = re.sub(r"/", "_", srctype)
     desttype_file = re.sub(r"/", "_", desttype)
     return f"{srctype_file}→{desttype_file}"
 
 
-def converter_to_mimetypes(converter):
+def converter_to_mimetypes(converter: str) -> Tuple[str, str]:
     m = re.match(r"(.*)→(.*)", converter)
     if not m:
         raise ValueError(f"bad converter {converter}")
@@ -86,8 +93,10 @@ def converter_to_mimetypes(converter):
 # FIXME: Detect and return errors, so that e.g. DarkGlass can give a generic
 # error instead of leaking permissions information
 def convert(
-    file, srctype="application/octet-stream", desttype="application/octet-stream"
-):
+    file: str,
+    srctype: str = "application/octet-stream",
+    desttype: str = "application/octet-stream",
+) -> bytes:
     if file != "-" and not os.path.exists(file):
         raise IOError("file not found")
     path = Path(file)
@@ -110,21 +119,20 @@ def convert(
     )
 
 
-def converters(match_pat=r".*"):
+def converters(match_pat: str = r".*") -> List[str]:
     convs = []
     for conv in Converters:
         if re.search(match_pat, conv):
             try:
                 srctype, desttype = converter_to_mimetypes(conv)
                 convs.append(f"{srctype}→{desttype}")
-            except:
+            except:  # pylint: disable=bare-except
                 pass
     return convs
 
 
-
 # CLI main entry point
-def main(  # pylint: disable=dangerous-default-value
+def main(
     argv: List[str] = sys.argv[1:],
 ) -> None:
     # Command-line arguments
@@ -149,7 +157,9 @@ def main(  # pylint: disable=dangerous-default-value
     if args.intype is not None:
         intype = args.intype
     else:
-        intype = magic.detect_from_filename(args.infile).mime_type
+        intype = magic.detect_from_filename(  # type: ignore # pylint: disable=no-member
+            args.infile
+        ).mime_type
         if intype in ("binary", "application/octet-stream", "text/plain"):
             # Get a second opinion if type from libmagic is too general
             intype = str(xdg.Mime.get_type2(args.infile))
@@ -157,14 +167,16 @@ def main(  # pylint: disable=dangerous-default-value
         args.outtype = str(xdg.Mime.get_type2(args.outfile))
     # print(args.infile, intype, args.outfile, args.outtype)
     try:
-        with sys.stdout.buffer if args.outfile == "-" else open(args.outfile, "wb") as out:
+        with sys.stdout.buffer if args.outfile == "-" else open(
+            args.outfile, "wb"
+        ) as out:
             out.write(convert(args.infile, intype, args.outtype))
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         die(1, str(e))
 
 
 # CLI hulot-converters entry point
-def mime_converters(  # pylint: disable=dangerous-default-value
+def mime_converters(
     argv: List[str] = sys.argv[1:],
 ) -> None:
     # Command-line arguments
