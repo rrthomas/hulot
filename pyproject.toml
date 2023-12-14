@@ -1,0 +1,28 @@
+[project]
+name = "hulot"
+version = "0.1"
+description = "Convert files between different MIME types"
+license = {text = "GPL v3 or later"}
+authors = [
+    {name = "Reuben Thomas", email = "rrt@sc3d.org"}
+]
+readme = "README.md"
+urls = {Homepage = "https://github.com/rrthomas/Hulot"}
+requires-python = ">= 3.9"
+dependencies = [
+    "python-magic",
+]
+classifiers = [
+    "Environment :: Console",
+    "Programming Language :: Python :: 3",
+]
+
+[project.scripts]
+hulot = "hulot:main"
+hulot-converters = "hulot:mime_converters"
+
+[build-system]
+requires = [
+    "setuptools",
+    "setuptools-scm",
+]

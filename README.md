@@ -20,7 +20,9 @@ report them on the project’s web page (see above for addresses).
 
 ## Installation
 
-For now, you have to install Hulot from git. Soon, it will be published on PyPI.
+Hulot is published on PyPI. Install it with `pip`:
+
+`pip install hulot`
 
 Most of the converters have dependencies. Unfortunately for now you have to
 examine their source code to see what they are; soon they will be
@@ -30,7 +32,7 @@ documented.
 ## Invocation
 
 ```
-cv [-h] [-V] IN-FILE OUT-FILE [OUT-MIME-TYPE] [IN-MIME-TYPE]
+hulot [-h] [-V] IN-FILE OUT-FILE [OUT-MIME-TYPE] [IN-MIME-TYPE]
 ```
 
 
