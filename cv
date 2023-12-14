@@ -57,14 +57,10 @@ def die(code: int, msg: str) -> NoReturn:
 if args.intype is not None:
     intype = args.intype
 else:
-    # Work around https://github.com/ahupp/python-magic/issues/296
-    if os.path.isdir(args.infile):
-        intype = "inode/directory"
-    else:
-        intype = magic.from_file(args.infile, mime=True)
-        if intype in ("binary", "application/octet-stream", "text/plain"):
-            # Get a second opinion if type from libmagic is too general
-            intype = f"{xdg.Mime.get_type2(args.infile)}"
+    intype = magic.detect_from_filename(args.infile).mime_type
+    if intype in ("binary", "application/octet-stream", "text/plain"):
+        # Get a second opinion if type from libmagic is too general
+        intype = f"{xdg.Mime.get_type2(args.infile)}"
 if not args.outtype:
     args.outtype = f"{xdg.Mime.get_type2(args.outfile)}"
 # print(args.infile, intype, args.outfile, args.outtype)
