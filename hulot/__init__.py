@@ -34,7 +34,7 @@ from typing import (
     TextIO,
 )
 
-import magic
+from magic import compat as magic
 import xdg.Mime
 
 VERSION = importlib.metadata.version("hulot")
@@ -157,9 +157,9 @@ def main(
     if args.intype is not None:
         intype = args.intype
     else:
-        intype = magic.detect_from_filename(  # type: ignore # pylint: disable=no-member
-            args.infile
-        ).mime_type
+        mime_magic = magic.open(magic.MIME | magic.SYMLINK)  # type: ignore
+        mime_magic.load()
+        intype = mime_magic.file(args.infile).split(";")[0]
         if intype in ("binary", "application/octet-stream", "text/plain"):
             # Get a second opinion if type from libmagic is too general
             intype = str(xdg.Mime.get_type2(args.infile))
