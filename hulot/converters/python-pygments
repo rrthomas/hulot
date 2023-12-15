@@ -4,6 +4,7 @@
 
 import os
 import sys
+import re
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
@@ -55,7 +56,7 @@ mime_to_ext = {
     "text/vnd.trolltech.linguist": "typescript",
     "text/x-tcl": "tcl",
     "text/x-tex": "latex",
-    "text/x-texinfo": "latex", # FIXME: texinfo really needs its own lexer
+    "text/x-texinfo": "latex",  # FIXME: texinfo really needs its own lexer
     "text/x-ursa": "ursa",
     "text/x-vala": "vala",
     "text/xml": "xml",
@@ -63,5 +64,7 @@ mime_to_ext = {
 }
 file = sys.argv[1]
 with open(file) as fh:
-    html = highlight(fh.read(), get_lexer_by_name(mime_to_ext[srctype]), HtmlFormatter(full=True))
-    print(html)
+    html = highlight(
+        fh.read(), get_lexer_by_name(mime_to_ext[srctype]), HtmlFormatter(full=True)
+    )
+    print(re.sub("\n<h2></h2>\n", "", html))
