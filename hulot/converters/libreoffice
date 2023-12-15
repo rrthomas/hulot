@@ -9,7 +9,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 
-from mime_convert import converter_to_mimetypes
+from hulot import converter_to_mimetypes
 
 
 converter = os.path.basename(sys.argv[0])

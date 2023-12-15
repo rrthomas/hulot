@@ -8,7 +8,7 @@ from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
 
-from mime_convert import converter_to_mimetypes
+from hulot import converter_to_mimetypes
 
 
 converter = os.path.basename(sys.argv[0])
