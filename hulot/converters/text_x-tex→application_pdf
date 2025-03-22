@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # Hulot converter: text/x-tex→application/pdf
-# © Reuben Thomas 2002-2023
+# © Reuben Thomas 2002-2025
 
 import os
 import sys
@@ -12,7 +12,6 @@ file = Path(os.path.abspath(sys.argv[1]))
 with TemporaryDirectory() as tempdir:
     os.chdir(tempdir)
     env = dict(os.environ)
-    env["TEXMFDBS"] = os.path.join(os.environ['HOME'], "texmf") + os.pathsep
     env["TEXINPUTS"] = str(file.parent) + os.pathsep
     env["BIBINPUTS"] = str(file.parent) + os.pathsep
     output = subprocess.check_output(
