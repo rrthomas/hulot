@@ -1,21 +1,36 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # Hulot converter: text/x-tex→application/pdf
 # © Reuben Thomas 2002-2025
 
 import os
+import subprocess
 import sys
 from pathlib import Path
-from tempfile import TemporaryDirectory, mkdtemp
-import subprocess
+from tempfile import TemporaryDirectory
 
-file = Path(os.path.abspath(sys.argv[1]))
+
+def extend_path(env: dict[str, str], var: str, new_path) -> None:
+    val = ""
+    if var in env:
+        val = env[var]
+    val = new_path + os.pathsep + val
+    env[var] = val
+
+
+file = sys.argv[1]
+abs_file = Path(os.path.abspath(file))
 with TemporaryDirectory() as tempdir:
     os.chdir(tempdir)
     env = dict(os.environ)
-    env["TEXINPUTS"] = str(file.parent) + os.pathsep
-    env["BIBINPUTS"] = str(file.parent) + os.pathsep
+    extend_path(env, "TEXINPUTS", str(abs_file.parent))
+    extend_path(env, "BIBINPUTS",str(abs_file.parent))
+    if file == "-":
+        file = "stdin.tex"
+        with open(file, "wb") as fh:
+            fh.write(sys.stdin.buffer.read())
+        abs_file = Path(os.path.abspath(file))
     output = subprocess.check_output(
-        ["latexmk", "--verbose", "-f", str(file)],
+        ["latexmk", "--verbose", "-f", str(abs_file)],
         env = env,
     )
-    sys.stdout.buffer.write(open(os.path.join(tempdir, file.with_suffix(".pdf").name), 'rb').read())
+    sys.stdout.buffer.write(open(os.path.join(tempdir, abs_file.with_suffix(".pdf").name), 'rb').read())
