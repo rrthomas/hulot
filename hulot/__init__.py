@@ -15,27 +15,28 @@
 # programs, one for each of a limited set of canonical types, which can be
 # converted to from any other type of the same sort.
 
+import argparse
 import importlib.metadata
 import os
-import sys
-import argparse
-import warnings
 import re
 import subprocess
+import sys
+import warnings
 from pathlib import Path
-from warnings import warn
 from typing import (
-    Optional,
     List,
-    Tuple,
-    Union,
-    Type,
     NoReturn,
+    Optional,
     TextIO,
+    Tuple,
+    Type,
+    Union,
 )
+from warnings import warn
 
-from magic import compat as magic
 import xdg.Mime
+from magic import compat as magic
+
 
 VERSION = importlib.metadata.version("hulot")
 
@@ -63,7 +64,7 @@ def die(code: int, msg: str) -> NoReturn:
 
 
 converters_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "converters")
-Converters = set(os.listdir(converters_dir))
+CONVERTERS = set(os.listdir(converters_dir))
 
 # FIXME: Should have a rule for this
 # "text/plain>text/html" => ,
@@ -105,7 +106,7 @@ def convert(
     if srctype == desttype:
         return open(file, mode="rb").read()
     converter = mimetypes_to_converter(srctype, desttype)
-    if not converter in Converters:
+    if not converter in CONVERTERS:
         raise IOError(f"no converter {converter} found")
     return subprocess.check_output(
         [
@@ -121,7 +122,7 @@ def convert(
 
 def converters(match_pat: str = r".*") -> List[str]:
     convs = []
-    for conv in Converters:
+    for conv in CONVERTERS:
         if re.search(match_pat, conv):
             try:
                 srctype, desttype = converter_to_mimetypes(conv)
@@ -167,9 +168,11 @@ def main(
         args.outtype = str(xdg.Mime.get_type2(args.outfile))
     # print(args.infile, intype, args.outfile, args.outtype)
     try:
-        with sys.stdout.buffer if args.outfile == "-" else open(
-            args.outfile, "wb"
-        ) as out:
+        with (
+            sys.stdout.buffer
+            if args.outfile == "-"
+            else open(args.outfile, "wb") as out
+        ):
             out.write(convert(args.infile, intype, args.outtype))
     except Exception as e:  # pylint: disable=broad-exception-caught
         die(1, str(e))
