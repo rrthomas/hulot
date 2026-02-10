@@ -25,7 +25,7 @@ Hulot is published on PyPI. Install it with `pip`:
 `pip install hulot`
 
 Most of the converters have dependencies. Unfortunately for now you have to
-examine their source code to see what they are; soon they will be
+examine their source code to see what they are; one day they might be
 documented.
 
 
