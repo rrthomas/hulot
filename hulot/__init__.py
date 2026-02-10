@@ -1,6 +1,6 @@
 # MimeConvert
 # Convert one MIME type into another
-# (c) 2002-2023 Reuben Thomas (rrt@sc3d.org, https://github.com/rrthomas/Hulot)
+# (c) 2002-2023 Reuben Thomas (rrt@sc3d.org, https://github.com/rrthomas/hulot)
 # Distributed under the GNU General Public License version 3, or (at
 # your option) any later version.
 

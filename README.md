@@ -1,6 +1,6 @@
 # Hulot
 
-Web site: https://github.com/rrthomas/Hulot  
+Web site: https://github.com/rrthomas/hulot  
 Maintainer: Reuben Thomas <rrt@sc3d.org>  
 
 Hulot is a simple command and framework for file conversion. It can guess
@@ -41,5 +41,5 @@ hulot [-h] [-V] IN-FILE OUT-FILE [OUT-MIME-TYPE] [IN-MIME-TYPE]
 Check out the git repository with:
 
 ```
-git clone https://github.com/rrthomas/Hulot
+git clone https://github.com/rrthomas/hulot
 ```

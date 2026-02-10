@@ -7,7 +7,7 @@ authors = [
     {name = "Reuben Thomas", email = "rrt@sc3d.org"}
 ]
 readme = "README.md"
-urls = {Homepage = "https://github.com/rrthomas/Hulot"}
+urls = {Homepage = "https://github.com/rrthomas/hulot"}
 requires-python = ">= 3.9"
 dependencies = [
     "python-magic",
