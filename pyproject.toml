@@ -1,6 +1,6 @@
 [project]
 name = "hulot"
-version = "0.1.5"
+version = "0.1.6"
 description = "Convert files between different MIME types"
 license = {text = "GPL v3 or later"}
 authors = [
