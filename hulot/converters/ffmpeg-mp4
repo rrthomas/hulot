@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+# Hulot converter: video/*→video/mp4
+# © Reuben Thomas 2026
+
+import subprocess
+import sys
+
+
+file = sys.argv[1]
+sys.stdout.buffer.write(
+    subprocess.check_output(
+        ["ffmpeg", "-loglevel", "quiet", "-i", file, "-c", "copy", "-f", "mp4", "-"]
+    )
+)
